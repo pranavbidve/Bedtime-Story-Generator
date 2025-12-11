@@ -10,7 +10,6 @@ def generate_story(user_request: str) -> dict:
     1) Read the user's request and decide if it is appropriate for a bedtime story
     for children ages 5–10.
 
-    
     The request is NOT appropriate ONLY if it clearly includes:
     - Explicit violence, blood, weapons, death, serious injury, or self-harm
     - Graphic or disturbing content
