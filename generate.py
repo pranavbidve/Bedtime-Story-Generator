@@ -19,11 +19,13 @@ def generate_story(user_request: str) -> dict:
     - Hate speech, slurs, or bullying
 
     IMPORTANT:
+    - Prioterise user's new reques
     - Do NOT interpret normal words (such as “competitive”, “fast”, “strong”, “magic”,
     “monster”, “adventure”, etc.) as unsafe unless the user explicitly includes harmful details.
     - Do NOT assume hidden meaning or danger. Only respond “unsafe” when the wording
     itself clearly contains harmful or adult content.
     - Neutral, vague, short, or open-ended prompts should ALWAYS be treated as safe.
+    - For any story - do not assume that it will have intense/scary/violent/mature content unless the user explicitly includes harmful details.
 
     2) Based on your decision, respond in ONE of these formats (JSON ONLY):
 
@@ -46,7 +48,7 @@ def generate_story(user_request: str) -> dict:
     - Something which children can learn and be motivated from.
     - Clear structure: beginning, middle, and end
     - Simple language for ages 5–10 (around Grade 1–3 reading level)
-    - Approximately 250 words
+    - Approximately 250 words but it can change if the user has specific intructions in the request.
     - No frightening, violent, or mature content
     - Perfect for bedtime
 
