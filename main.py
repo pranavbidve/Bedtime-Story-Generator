@@ -1,4 +1,4 @@
-from generate import generate_story
+from generate import generate_story, generate_story_loop
 from judge import judge_story
 from rewrite import user_feedback, rewrite_story
 
@@ -72,110 +72,72 @@ TOTAL: 4.3/10
 4.3
 """
 
-def generate_story_loop():
-    while True:
-        user_request = input("What kind of bedtime story would you like?\n> ").strip()
-        if not user_request:
-            print("No request given. Exiting.")
-            return
-
-        raw_response = generate_story(user_request)
-        story = json.loads(raw_response)
-
-        print(story)
-
-        if story.get('status') == 'unsafe':
-            print("\n" + story.get('message'))
-            continue
-        else:
-            print("Story")
-            print(story.get('story', ''))
-            print("\n================\n")
-            break
-
 def main():
 
     # NEED to do somthing if the user wnats a story whihc is not approaprte.
 
     print("=== Kids Bedtime Story Generator (Ages 5–10) ===\n")
-
+    
     # 1) Generate a raw story based on the user request
-    while True:
-        user_request = input("What kind of bedtime story would you like?\n> ").strip()
-        # user_request = "rabit wiht a turtle firend"
-        if not user_request:
-            print("No request given. Exiting.")
-            return
-
-        raw_response = generate_story(user_request)
-        story = json.loads(raw_response)
-
-        print(story)
-
-        if story.get('status') == 'unsafe':
-            print("\n" + story.get('message'))
-            continue
-        else:
-            print("Story")
-            print(story.get('story', ''))
-            print("\n================\n")
-            break
+    story = generate_story_loop()
+    
+    if story is None:
+        return
 
     # 2) Judge the initial story (LLM judge with chain-of-thought)
     if story.get('status') != 'unsafe':
         raw_reasoning = judge_story(story['story'])
         reasoning = json.loads(raw_reasoning)
+        print("\n=== Story Evaluation ===\n")
+        print(reasoning)
         total = float(reasoning['scores']['TOTAL'])
 
+    
+    if total>6.5:
         reasoning_block = reasoning.get("reasoning", {})
         improvement_summary = reasoning_block.get("IMPROVEMENT_SUMMARY")
-
-        if improvement_summary:
-            print(improvement_summary)
-            print(reasoning)
-
-
-    # testing_story = "Once upon a time in a peaceful village, there lived a dog named Benny. Benny was known as the village coward because he was afraid of almost everything. He would jump at the sound of a falling leaf and run away from his own shadow. Despite his fears, Benny had a kind heart and always tried to help others. One day, when a storm hit the village, everyone was scared and looking for shelter. Benny, although trembling with fear, bravely guided his friends to a safe cave where they could wait out the storm. His friends were amazed at his courage and kindness. From that day on, Benny was no longer seen as a coward, but as a brave and caring friend. The villagers learned that courage is not the absence of fear, but the ability to do what is right even when you are afraid. And so, Benny the dog became a hero in the village, showing everyone that true bravery comes from the heart."
-
-    # reasoning = {'reasoning': {'AGE_APPROPRIATE': 'The story of Benny the dog showcases themes of kindness, courage, and friendship, which are suitable for children ages 5-10. The emotional growth of Benny from being a coward to a hero can resonate with young readers. However, the concept of fear and bravery might need some simplification to ensure full understanding by the younger audience.', 'SAFETY': "The story is safe for children as it does not contain violence or scary themes. It promotes positive values like kindness and courage. To enhance safety, some descriptions of Benny's fears could be toned down to avoid triggering anxiety in sensitive children.", 'STORY_STRUCTURE': "The story follows a clear beginning, middle, and end structure with a well-defined story arc. The transformation of Benny from a coward to a hero is evident throughout the narrative. However, the pacing could be improved by elaborating on Benny's internal struggles and gradual growth to enhance engagement.", 'BEDTIME_SUITABLE': 'The narrative tone of the story is soothing and positive, making it suitable for bedtime reading. The message of courage and kindness can leave children with a sense of comfort before sleep. To further enhance bedtime suitability, the story could include more calming descriptions of nature or gentle actions to create a more relaxing atmosphere.', 'IMPROVEMENT_SUMMARY': "The story could be improved by simplifying the concepts of fear and bravery for better understanding by young readers. Additionally, enhancing the pacing by detailing Benny's internal struggles and incorporating more calming descriptions could further engage children in the bedtime narrative."}, 'scores': {'AGE_APPROPRIATE': 7, 'SAFETY': 8, 'STORY_STRUCTURE': 7, 'BEDTIME_SUITABLE': 8, 'TOTAL': 7.45}}
-    # reasoning_block = reasoning.get("reasoning", {})
-    # improvement_summary = reasoning_block.get("IMPROVEMENT_SUMMARY")
-
-    coach_response = user_feedback(story['story'], improvement_summary)
-    print("\n=== Story Coach Feedback ===\n")
-    print(coach_response)
-    user_improvement = input("")
-
-
-    #4) Ask user if they want changes
-
-    new_requirement_json = rewrite_story(story['story'], improvement_summary, user_improvement)
-    print("\n=== New Requirement ===\n")
-    print(new_requirement_json)
+    else: 
+        story = generate_story_loop()
     
-    # Parse the JSON response to extract the actual requirement string
-    new_requirement_data = json.loads(new_requirement_json)
-    new_requirement = new_requirement_data['new_requirement']
+    # 3) Loop: Get user feedback, rewrite story, judge, repeat until user enters blank
+    while True:
+        coach_response = user_feedback(story['story'], improvement_summary)
+        # print("\n=== Story Coach Feedback ===\n")
+        print(coach_response)
+        user_improvement = input("> ").strip()
+        
+        # If user enters blank, exit the loop
+        if user_improvement == '':
+            print("\nThank you! Story generation complete.")
+            break
+        
+        # 4) Rewrite story based on user feedback
+        new_requirement_json = rewrite_story(story['story'], improvement_summary, user_improvement)
+        print("\n=== New Requirement ===\n")
+        print(new_requirement_json)
+        
+        # Parse the JSON response to extract the actual requirement string
+        new_requirement_data = json.loads(new_requirement_json)
+        new_requirement = new_requirement_data['new_requirement']
 
-    new_story = generate_story(new_requirement)
-    new_story = json.loads(new_story)
-    print("\n=== New Story ===\n")
-    print(new_story)
-
-    raw_new_story_reasoning = judge_story(new_story['story'])
-    new_story_reasoning = json.loads(raw_new_story_reasoning)
-  
-    print(new_story_reasoning)
-
-    # coach_response = rewrite_story(story['story'], improvement_summary)
-    # print("\n=== Story Coach Feedback ===\n")
-    # print(coach_response)
-
-    #5) Get user feedback
-
-    #6) Rewrite using judge reasoning + user feedback
-
-    #7) (Optional) re-judge the improved story
+        # Generate new story
+        new_story_response = generate_story(new_requirement)
+        new_story = json.loads(new_story_response)
+        print("\n=== New Story ===\n")
+        print(new_story.get('story', ''))
+        
+        # Update story variable for next iteration
+        story = new_story
+        
+        # 5) Judge the new story
+        raw_new_story_reasoning = judge_story(new_story['story'])
+        new_story_reasoning = json.loads(raw_new_story_reasoning)
+        
+        reasoning_block = new_story_reasoning.get("reasoning", {})
+        improvement_summary = reasoning_block.get("IMPROVEMENT_SUMMARY")
+        
+        print("\n=== Story Evaluation ===\n")
+        print(new_story_reasoning)
 
 
 if __name__ == "__main__":

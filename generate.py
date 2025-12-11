@@ -66,3 +66,30 @@ def generate_story(user_request: str) -> dict:
     """
 
     return call_model(storyteller_prompt, max_tokens=500, temperature=0.8)
+
+
+def generate_story_loop():
+    """Interactive loop for generating stories based on user input.
+    Returns the story dict if successful, None if user exits."""
+    while True:
+        user_request = input("What kind of bedtime story would you like? - Enter blank to exit\n> ").strip()
+        if user_request == '':
+            print("\nThank you! Story generation complete.")
+            return None
+
+        raw_response = generate_story(user_request)
+        story = json.loads(raw_response)
+
+        # print(story)
+
+        if story.get('status') == 'unsafe':
+            print("\n" + story.get('message'))
+            continue
+        else:
+            print("\n=== Story ===\n")
+            print(story.get('story', ''))
+            return story
+
+
+if __name__ == "__main__":
+    generate_story_loop()
