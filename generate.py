@@ -26,6 +26,7 @@ def generate_story(user_request: str) -> dict:
     itself clearly contains harmful or adult content.
     - Neutral, vague, short, or open-ended prompts should ALWAYS be treated as safe.
     - For any story - do not assume that it will have intense/scary/violent/mature content unless the user explicitly includes harmful details.
+    - For any story - it can be longer or shorter than 250 words if the user has specific intructions in the request.
 
     2) Based on your decision, respond in ONE of these formats (JSON ONLY):
 
@@ -56,6 +57,9 @@ def generate_story(user_request: str) -> dict:
     - You must respond with VALID JSON only.
     - Do NOT include any text outside the JSON.
     - Do NOT use Markdown or code fences.
+    - CRITICAL: All newlines in the story text must be escaped as \\n (backslash-n), not actual newlines.
+    - Example: Use "Line 1\\nLine 2" NOT "Line 1\nLine 2" (with actual line breaks).
+    - Escape all control characters: \\n for newline, \\t for tab, \\r for carriage return.
 
     User request:
     {user_request}
