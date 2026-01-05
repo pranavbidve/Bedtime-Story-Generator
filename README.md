@@ -1,6 +1,6 @@
-# Hippocratic AI Coding Assignment
-Welcome to the [Hippocratic AI](https://www.hippocraticai.com) coding assignment
+# Bedtime Story Generator
 
+Bedtime Story Generator is a simple, AI-powered app that creates personalized, kid-friendly bedtime stories on demand. Users can provide prompts like a character, theme, or age group, and the system generates short, calming, and imaginative stories designed specifically for bedtime reading. The project highlights prompt design, controllable story length, and safe, child-appropriate narrative generation using generative AI.
 
 ## Blockdiagram
 
@@ -146,25 +146,3 @@ It should be appropriate for ages 5-10. Other than that it's up to you. Here are
 - Use story arcs to tell better stories
 - Allow the user to provide feedback or request changes
 - Categorize the request and use a tailored generation strategy for each category
-
----
-
-## How will I be evaluated
-Good question. We want to know the following:
-- The efficacy of the system you design to create a good story
-- Are you comfortable using and writing a python script
-- What kinds of prompting strategies and agent design strategies do you use
-- Are the stories your tool creates good?
-- Can you understand and deconstruct a problem
-- Can you operate in an open-ended environment
-- Can you surprise us
-
----
-
-## Other FAQs
-- How long should I spend on this? 
-No more than 2-3 hours
-- Can I change what the input is? 
-Sure
-- How long should the story be?
-You decide
